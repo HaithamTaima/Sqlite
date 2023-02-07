@@ -87,6 +87,26 @@ create  table if not exists EmpProjects
        check(WorkingHours>0)             
 );
 
+create table if not exists  Employee_HIST
+(
+       EmpId        integer primary key,
+       EmpName      Text    not null,
+       HireDate     Date    default Current_Date,
+       Age          float   check(Age>=17 and Age<=100),
+       Gender       char    check(Gender in ('M','f')),
+       Salary       float   check(Salary>=500),
+       EmpDepId     integer references Departments(DepId)        
+);
+ --المتقاعدين نقل المتقاعدين من جدول الموطفين الى جدول الموظفين المتقاعدين 
+insert into Employee_HIST
+select *
+from Employee
+where EmpStatus=0
+
+delete from Employee
+where EmpStatus =0;
+
+
 
 /*الاسم الجديد rename to الم الجدول الحالي alter table*/
 alter table EmpProjects rename to ProjectsEmps;
@@ -274,7 +294,7 @@ select DepName,count(EmpName),sum(Salary),max(Salary),min(Salary)
 
 
 
--- اسالة الاختبار
+-- اسالة الاختبار*************************************
 
 --الموظفات الاناث الاتي تتروح اعمارهن بين 30و 20
 select * 
@@ -288,14 +308,52 @@ where Gender='M'
 and EmpName like 'م%'
 
 -- المشاريع المنتهية 
+select*
+from Projects 
+where EndDate<=Current_Date
 
 --اسم الموظف واسم القسم الذي يعمل فيه 
 select DepName,EmpName 
 from Employee join Departments 
 on EmpDepId=DepId group by DepName
 --اسماء الاقسام  وعدد العاملين في كل قسم 
+select DepName ,count(EmpName)
+from Employee join Departments
+on EmpDepId=DepId
+group by DepName
 
 --تعديل رواتب الموظفين الذين تقل رواتبهم عن 100 بحيت تصبح 1200 
-
+update Employee set Salary =1200 where Salary<100
 --حذف بيانات الموظفين الذين تزيد اعمارهم عن 60 عام
+DELETE from Employee where Age >60
+ 
+--*****************************نهاية الاختبار
 
+select EmpName,Salary
+from Employee 
+where Gender='M'
+order by  Salary desc
+limit 10 offset 30
+--$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+ --المتقاعدين 
+ --تعديل الجدول 
+ alter table Employee add column  EmpStatus Boolean default 1
+
+ update Employee 
+ set EmpStatus =0
+ where Age >=60
+ 
+
+
+
+--تعديل 
+update Employee 
+set ManagerId=null
+where ManagerId in (select EmpId from Employee_HIST)
+
+--$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+-- حساب عدد حروف
+select length (EmpName),EmpName
+from Employee
+order by 1 desc
