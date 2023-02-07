@@ -82,6 +82,12 @@ create table if not exists Rental
 
    insert into Staff (FirstName,LastName,StoreId)VALUES('Haitham','Taima',1);
 
+   insert into Category VALUES(1,'Anime')
+
+    insert into Actor VALUES (1,'Haitham','Hatem') 
+
+    insert into film VALUES
+    ('Mission Impossible', 'Action movie', 1996, 'English', 4.5, 120, 1)
     --كشف اسماء الزبائن الغير فعالين مع ايملاتهم
     select FirstName ,LastName ,Email from Customer where Active =false 
 

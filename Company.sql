@@ -148,11 +148,30 @@ select e1.EmpName,m1.EmpName from Employee e1,Employee m1 where e1.ManagerId=m1.
 --#################################################################
 --join
 select EmpName, EmpDepId,DepId,DepName from Employee,Departments where EmpDepId=DepId;
-
+--join
 select EmpName ,ProjectName,WorkingHours where EmpProjects.EmpId =Employee.EmpId and EmpProjects.ProjectId=Projects.ProjectId
+--###################
+--تعديل بجيب كل الموضفين والقسم الموجود فيه كل موظف 
+
+select EmpName,DepName
+from Employee join Departments
+on Employee.EmpDepId=Departments.DepId
+--ممككن تحط شروط 
+where Age>=50
+and Gender='M'
+--#####################
 
 
---تعديل 
+--$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+--join بتجيب اسماء الموظفين والقسم  اللي بيشتغلوا فيه مع الشروط
+select EmpName,DepName from Employee left join Employee.EmpDepId=Departments.DepId where Age>=50 and Gender='M'
+
+--اسماء الاقسام ما اسماء المدراء تع القسم 
+--alter table Departments add column ManagerId integer references Employee(EmpId);
+select EmpName,DepName from Departments left join Employee on Departments.ManagerId=Employee.EmpDepId;
+
+--$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
 
 --التعديل على جميع بيانات الموظفين
 update Employee set Salary=1500;
@@ -173,24 +192,16 @@ delete from Employee where Age>60;
 update Employee set EmpDepId=54533 where EmpDepId=345345;
 delete from Departments where DepId =345345;
 
---join بتجيب اسماء الموظفين والقسم  اللي بيشتغلوا فيه مع الشروط
-select EmpName,DepName from Employee left join Employee.EmpDepId=Departments.DepId where Age>=50 and Gender='M'
-
---اسماء الاقسام ما اسماء المدراء 
---alter table Departments add column ManagerId integer references Employee(EmpId);
-select EmpName,DepName from Departments left join Employee on Departments.ManagerId=Employee.EmpDepId;
-
-
 
 
 --##############################################################################################
 --aggregation function:دوال تجميع 
 
---1- count (*|اسم العمود )
---2-sum (اسم عمود )
---3-avg(اسم عمود)
---4-max(اسم العمود)
---5-min(اسم االعمود)
+--1- count (*|اسم العمود )بتحسم كم موظف عندك اكم من زبون عندك هيك 
+--2-sum (اسم عمود )بتعمل تجميع للقيم الي بداخل العمود مع اهمال قيمة  الnull
+--3-avg(اسم عمود)بتحسب متوسط او معدل 
+--4-max(اسم العمود) بتعمل احتساب لاكبر قيمة داخل العمودد(بتجيب اعلى علامة مثلا )
+--5-min(اسم االعمود)بتعمل احتساب لاقل قيمة داخل العمودد
 
 Salary 
 300
@@ -206,8 +217,20 @@ avg (Salary)=275
 max (Salary)=500
 min (Salary)=100
 
+
+--***********************
+--اول شي بجيب الذكور الموظفين الي بشتغلو في قسم 2214 بعدين بنفذ دوال التجميع 
 --عدد الموظفين الكلي وعدد الموظفين الي لهم راتب وعدد الموظفين اللي ما لهم راتب 
-select count (*) as EmployeeCont ,count (Salary) as EmployeeWithsalry,count(*)-count(Salary) from Employee
+select count (*) as "EmployeeCont" ,count (Salary) as "EmployeeWithsalry",count(*)-count(Salary) as "EmployeeWithNoSalary"
+from Employee 
+where Gender='M';
+and ManagerId=2214
+--************************
+
+--اسماء الادارات مع عدد الموظفين 
+select DepName ,count(EmpName)
+from Employee join Departments 
+on EmpDepId=DepId
 
 --بيانات الموظفين الذي لا يوجد له راتب 
 select Employee from Employee where Salary is null
@@ -227,13 +250,52 @@ select count (*) as EmployeeCont ,count (Salary) as EmployeeWithsalry,count(*)-c
 
 --اسماء الادارات  مع عدد الموضفين فيها 
 --group byممنوع نستخدم دوال التجميع مع اسماء الاعمدة الا اذا وضعنا اسماء الاعمدة في ي
-select DepName,count(EmpName)  from Employee join Departments on EmpDepId=DepId group by DepName
+select DepName,count(EmpName)  
+from Employee join Departments 
+on EmpDepId=DepId group by DepName
 
 
 --اسماء الادارات  مع عدد الموضفين فيها ورواتاتب الادارة
-select DepName,count(EmpName),sum(Salary),max(Salary),min(Salary)  from Employee join Departments on EmpDepId=DepId group by DepName
+select DepName,count(EmpName),sum(Salary),max(Salary),min(Salary)  
+from Employee join Departments 
+on EmpDepId=DepId group by DepName
 
 --اسماء الادارات  مع عدد الموضفين فيها للادارات التي  بها اكثر من 12 موظف
 --having بنحط فيها شروط على مستوى التجميع
-select DepName,count(EmpName),sum(Salary),max(Salary),min(Salary)  from Employee join Departments on EmpDepId=DepId where Gender='M' group by DepName having count(EmpName)>12 order by DepName
-   
+select DepName,count(EmpName),sum(Salary),max(Salary),min(Salary) 
+ from Employee join Departments 
+ on EmpDepId=DepId 
+ where Gender='M' 
+ group by DepName 
+ having count(EmpName)>12 
+ order by DepName
+ 
+
+
+
+
+-- اسالة الاختبار
+
+--الموظفات الاناث الاتي تتروح اعمارهن بين 30و 20
+select * 
+from Employee
+where Gender='M'
+and Age between 20 and 30
+--الموظفين الذكور الذين  يبدأ  اسمهم بحرف م 
+select *
+from Employee
+where Gender='M'
+and EmpName like 'م%'
+
+-- المشاريع المنتهية 
+
+--اسم الموظف واسم القسم الذي يعمل فيه 
+select DepName,EmpName 
+from Employee join Departments 
+on EmpDepId=DepId group by DepName
+--اسماء الاقسام  وعدد العاملين في كل قسم 
+
+--تعديل رواتب الموظفين الذين تقل رواتبهم عن 100 بحيت تصبح 1200 
+
+--حذف بيانات الموظفين الذين تزيد اعمارهم عن 60 عام
+
