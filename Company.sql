@@ -357,3 +357,8 @@ where ManagerId in (select EmpId from Employee_HIST)
 select length (EmpName),EmpName
 from Employee
 order by 1 desc
+--*********************
+select count(*)
+from Employee
+--*********************
+select EmpName ,EmpId from Employee
