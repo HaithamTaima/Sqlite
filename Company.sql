@@ -251,6 +251,7 @@ and ManagerId=2214
 select DepName ,count(EmpName)
 from Employee join Departments 
 on EmpDepId=DepId
+group by DepName
 
 --بيانات الموظفين الذي لا يوجد له راتب 
 select Employee from Employee where Salary is null
@@ -362,3 +363,13 @@ select count(*)
 from Employee
 --*********************
 select EmpName ,EmpId from Employee
+
+
+select EmpName ,DepName 
+from Employee,Departments
+where EmpDepId=DepId
+
+
+select DepName ,EmpName
+from Employee  join Departments
+on Departments.ManagerId=Employee.EmpId
